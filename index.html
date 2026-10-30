@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}#p{width:100%;height:100%}</style></head>
+<body><div id="p"></div><script>
+// Trailer-Seite für die TV-App "Was schauen?": eingebettet, damit YouTube eine Herkunft (Referer) sieht.
+var q = {}; location.search.slice(1).split('&').forEach(function (kv) { var p = kv.split('='); q[p[0]] = decodeURIComponent(p[1] || ''); });
+var player;
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('p', {videoId: q.v, width: '100%', height: '100%',
+    playerVars: {autoplay: 1, mute: q.mute === '1' ? 1 : 0, controls: 0, rel: 0, playsinline: 1, cc_load_policy: 0, hl: 'de'},
+    events: {onReady: function (e) { e.target.playVideo(); },
+      onStateChange: function (e) { parent.postMessage({yt: 'state', s: e.data}, '*'); },
+      onError: function (e) { parent.postMessage({yt: 'error', code: e.data}, '*'); }}});
+}
+window.addEventListener('message', function (m) { if (m.data === 'toggle' && player) { player.getPlayerState() === 1 ? player.pauseVideo() : player.playVideo(); } });
+</script><script src="https://www.youtube.com/iframe_api"></script></body></html>
